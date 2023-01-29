@@ -1,13 +1,16 @@
 import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+import pagination from './component/pagination.js';
+import productModal from './component/productModal.js';
 const url = 'https://vue3-course-api.hexschool.io/v2'; // 請加入站點
 const path = 'rin'; // 請加入個人 API Path
-  let myModal ='';
-  let delModal ='';
+
+let myModal ='';
+let delModal ='';
 
 
 
 
-createApp({
+const app = createApp({
     data() {
       return {
         products:[],
@@ -15,7 +18,7 @@ createApp({
           imagesUrl: []
         },
         newProd:false,
-        newImg:'',
+        pages:{},
       }
 
     },
@@ -30,11 +33,12 @@ createApp({
             window.location = 'login.html';
           })
       },
-         getProducts() {
-            axios.get(`${url}/api/${path}/admin/products`)
+         getProducts(page=1) {
+            axios.get(`${url}/api/${path}/admin/products/?page=${page}`)
             .then((res)=>{
-
+              this.pages = res.data.pagination;
              this.products = res.data.products;
+         
        
             })
             .catch((error)=>{
@@ -63,69 +67,32 @@ createApp({
               };
 
               this.newProd =true;
+              console.log(this.newProd)
               myModal.show()
           
             }
 
           },
-          sendProd(){
-            if(this.newProd){
-            axios.post(`${url}/api/${path}/admin/product`,{data:this.tempProduct})
-            .then((res)=>{
-          
-              myModal.hide();
-              this.getProducts();
-              this.tempProduct={};
-            })
-            .catch((error)=>{
-              console.log(error)
-              alert('新增商品失敗，請確認是否有誤')
-            })
-            }
-            else{
-              // console.log(this.tempProduct)
-              // const index = this.products.findIndex((i)=>{
-              //   return i.id === this.tempProduct.id
-              // })
-              // console.log(i.id);
-              // this.products[index] = this.tempProduct;
-              // myModal.hide();
-              // this.getProducts();
-            axios.put(`${url}/api/${path}/admin/product/${this.tempProduct.id}`,{data:this.tempProduct})
-            .then(()=>{
-            
-              myModal.hide();
-              this.getProducts();
-              
-             
-            })
-            .catch((error)=>{
-              console.log(error)
-            })
-            }
-          },
           delProd(){
             axios.delete(`${url}/api/${path}/admin/product/${this.tempProduct.id}`)
             .then((res)=>{
-              delModal.hide();
+              // delModal.hide();
+              this.btnModel('del');
               this.getProducts();            
             })
             .catch((error)=>{
               console.log(error)
             })
           },
-          imgBtn(i,index){
-            if(i==="push"){
-              // console.log(this.tempProduct.imagesUrl)
-              this.tempProduct.imagesUrl.splice(index,1)
-              // this.tempProduct.imagesUrl.push(this.newImg)
+          btnModel(e){
+            if(e==="del"){
+              delModal.hide();
+              this.getProducts();
+
             }
             else{
-              // this.tempProduct.imagesUrl.pop()
-              // tempProduct.imagesUrl.push('')
-              // console.log(this.tempProduct.imagesUrl)
-              this.tempProduct.imagesUrl = [];
-              this.tempProduct.imagesUrl.push('');
+              myModal.hide();
+              this.getProducts();
             }
           }
 
@@ -142,5 +109,14 @@ createApp({
 
        
        
-    }
-  }).mount('#app')
+    },
+    components:{pagination , productModal}
+  });
+
+  // app.component('product-model',{
+  //   props:['tempProduct'],
+  //   template:'#product-model-temp',
+  // });
+
+
+  app.mount('#app')

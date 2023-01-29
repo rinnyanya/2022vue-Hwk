@@ -13,6 +13,16 @@ createApp({
 
     },
     methods:{
+      checkAdmin() {
+        axios.post(`${url}/api/user/check`)
+          .then(() => {
+            this.getProducts();
+          })
+          .catch((err) => {
+            alert('驗證錯誤')
+            window.location = 'login.html';
+          })
+      },
          getProducts() {
             axios.get(`${url}/api/${path}/admin/products`)
             .then((res)=>{
@@ -28,9 +38,10 @@ createApp({
     mounted(){
         const token = document.cookie.replace(/(?:(?:^|.*;\s*)hexToken\s*\=\s*([^;]*).*$)|^.*$/, "$1");
         axios.defaults.headers.common['Authorization'] = token;
-        this.getProducts()
-        if(!token){
-        location.href="login.html";
-        }
+        // this.getProducts()
+        // if(!token){
+        // location.href="login.html";
+        // }
+        this.checkAdmin()
     }
   }).mount('#app')

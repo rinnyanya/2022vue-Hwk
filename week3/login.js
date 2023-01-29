@@ -2,7 +2,6 @@
 
 import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
 const url = 'https://vue3-course-api.hexschool.io/v2'; // 請加入站點
-const path = 'rin'; // 請加入個人 API Path
 
 createApp({
   data() {
@@ -24,10 +23,8 @@ createApp({
         })
         .catch((error)=>{
           console.log(error)
+          alert('登入失敗，請確認帳號密碼')
         })
       }
   },
-  mounted(){
-  
-  }
 }).mount('#app')
