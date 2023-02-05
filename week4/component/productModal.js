@@ -2,10 +2,14 @@ const url = 'https://vue3-course-api.hexschool.io/v2'; // 請加入站點
 const path = 'rin'; // 請加入個人 API Path
 export default {
     props:['tempProduct','newProd'],
+    mounted(){
+      const imgfile = document.querySelector('#imgfile');
+      // document.getElementById('imgForm')&&document.getElementById('imgForm').reset();
+    },
     methods:{
 
       imgBtn(i,index){
-        if(i==="push"){
+        if(i==="del"){
           this.tempProduct.imagesUrl.splice(index,1)
 
         }
@@ -13,6 +17,40 @@ export default {
           this.tempProduct.imagesUrl = [];
           this.tempProduct.imagesUrl.push('');
         }
+      },
+      upImgBtn(){
+        const file = imgfile.files[0];
+        if(!file){
+          alert('請確認圖片路徑')
+        }
+        else{
+          
+        const formData = new FormData();
+        formData.append('file-to-upload',file);
+
+        axios.post(`${url}/api/${path}/admin/upload`,formData)
+        .then((res)=>{
+          if(!this.tempProduct.imagesUrl){
+            this.tempProduct.imagesUrl = [];
+            this.tempProduct.imagesUrl.push(res.data.imageUrl);
+            // file.reset();
+            
+          }
+          else{
+            
+            this.tempProduct.imagesUrl.push(res.data.imageUrl);
+           
+          }
+        
+          
+
+        })
+        .catch((error)=>{
+          console.log(error)
+          alert('上傳圖片失敗')
+        })
+        }
+
       },
       sendProd(){
         if(this.newProd){
@@ -67,30 +105,38 @@ export default {
                   </div>
                   <img class="img-fluid" :src="tempProduct.imageUrl" alt="">
                   <h3>內容圖片</h3>
+                  <form id="imgForm">
+                  <input type="file" name="imgurl" class="form-control" id="imgfile" placeholder="請輸入圖片連結">
+                  </form>
+                  <button class="btn btn-success mb-3 mt-1 btn-sm d-block w-100"
+                  @click="upImgBtn">
+                  上傳圖片
+                </button>
                   <div  v-if="Array.isArray(tempProduct.imagesUrl)">
                     <div class="mb-3" v-for="(item,key) in tempProduct.imagesUrl" :key="key">
                      
                         <label for="imageUrl" class="form-label">輸入圖片網址</label>
-                        <input type="text" class="form-control"
+                        <input type="text" class="form-control" 
                                placeholder="請輸入圖片連結" v-model="tempProduct.imagesUrl[key]">
                         <img :src="item" alt="" class="images m-2" style="width: 100%;">
-                        <button class="btn btn-outline-danger btn-sm d-block w-100"
-                        @click="imgBtn('push',key)">
-                        刪除圖片
-                      </button>
+                          <button class="btn btn-outline-danger btn-sm d-block w-50"
+                          @click="imgBtn('del',key)">
+                          刪除圖片
+                        </button>
+                       
                     
           
                     </div>
                     <div >
                       <button class="btn btn-outline-primary btn-sm d-block w-100"
                         @click="tempProduct.imagesUrl.push('')">
-                        新增圖片
+                        新增圖片網址
                       </button>
                     </div>
                   </div>
                   <div v-else>
                     <button class="btn btn-outline-primary btn-sm d-block w-100" @click="imgBtn">
-                      新增圖片
+                      新增圖片網址
                     </button>
                   </div>
                   <div>
